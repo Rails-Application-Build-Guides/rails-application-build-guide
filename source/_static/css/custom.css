@@ -1,0 +1,22 @@
+.caption:before {
+  content: "図: ";
+}
+
+.caption {
+  font-weight: bold;
+  text-align: center;
+}
+
+p {
+  margin-bottom: 14px;
+}
+
+.wy-nav-top {
+  background-color: #c0392b !important;
+}
+
+.wy-side-nav-search {
+  background-color: #c0392b !important;
+}
+
+
