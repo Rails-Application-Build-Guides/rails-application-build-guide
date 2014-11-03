@@ -140,6 +140,7 @@ Corporationモデル、Productモデルに関しては省略します。
 
 - 受注、受注明細のフォームオブジェクト作成
 - 受注登録コントローラの実装
+- 受注登録ビューの実装
 - 動的に要素を増減可能な受注明細の実装
 
 受注、受注明細のフォームオブジェクト作成
@@ -268,7 +269,8 @@ Corporationモデル、Productモデルに関しては省略します。
   end
 
 
-動的に要素を増減可能な受注明細の実装
+
+受注登録のビューの実装
 ----------------------------------------------------------------------------
 
 受注登録画面のViewの実装は以下の通りです。
@@ -276,6 +278,7 @@ Corporationモデル、Productモデルに関しては省略します。
 .. code-block:: ruby
 
   # app/views/products/new.html.erb
+  # (edit.html.erb もpost先が違うのみで、他の実装は同じ)
 
   <% content_for(:title) do %>
     受注登録
@@ -350,7 +353,7 @@ Corporationモデル、Productモデルに関しては省略します。
     <%= f.text_field :quantity, class: 'form-control quantity' %>
     </td>
     <td>
-      <%= f.text_field :price, class: 'form-control subtotal', disabled: true %>
+    <%= f.text_field :price, class: 'form-control subtotal', disabled: true %>
     </td>
     <td>
     <%= link_to_remove_association '削除', f, class: 'btn btn-default' %>
@@ -370,7 +373,7 @@ fields_for を利用するためには、以下条件を満たす必要があり
 - fields_for の第一引数に渡した変数名の変数にアクセスできること
 - 指定した変数が ``xxx_attributes=`` (xxx は変数名)という形式で更新できること
 
-Orderモデルは ``has_many order_details`` と宣言しているため、order_details変数にはアクセス可能であり、
+Orderモデルは ``has_many :order_details`` と宣言しているため、order_details変数にはアクセス可能であり、
 一つ目の条件は満たしています。
 
 二つ目の条件 ``order_details_attributes=`` で注文明細を編集できるようにする、を満たすためには、
@@ -388,6 +391,33 @@ Orderの関連であるOrderDetailモデルを編集できるようになりま�
 この変数に ``true`` を入れることにより、
 モデル保存時に関連である order_details が削除されるようになります。
 
+以下は注文、注文明細更新時にControllerに引き渡されるパラメータのサンプルです。
+
+.. code-block:: ruby
+
+  # app/controller/orders_controller.rb#update で受け取るparamsのサンプル
+  "form_order"=>
+   {"name"=>"A機械製造1031注文",
+    "corporation_id"=>"1",
+    "order_details_attributes"=>
+       {"0"=>{"id"=>"1", "product_id"=>"1", "unit_price"=>"2000", "quantity"=>"3", "_destroy"=>"false"},
+        "1"=>{"id"=>"2", "product_id"=>"4", "unit_price"=>"10000", "quantity"=>"4", "_destroy"=>"false"}
+       }
+   }
+
+上記パラメータをOrderモデルに引き渡すことで、注文、注文明細を更新することが可能です。
+
+.. code-block:: ruby
+
+  # 注文、注文明細を新規作成
+  @order = Form::Order.new(params[:form_order])
+
+  # 注文、注文明細を更新
+  @order.update_attributes(params[:form_order])
+
+
+動的に要素を増減可能な受注明細の実装
+----------------------------------------------------------------------------
 
 注文明細フォームを動的に追加、削除するには、JavaScriptにてフォームの追加、削除を行う必要があります。
 
@@ -396,5 +426,96 @@ Orderの関連であるOrderDetailモデルを編集できるようになりま�
 
   受注明細を動的に追加する
 
+明細削除の際は、単に領域を削除してはいけません。
+指定した受注明細を消すために、_destroyとid のペアを
+パラメータとしてコントローラに渡してあげる必要があるからです。
 
-FIXME: 11/03 今日は疲れたのでここまで
+動的に要素を増減可能なフォームをJavascriptで1から実装するのは、なかなか手間のかかるものです。
+Javascriptに自信のある方はフルスクラッチで作成するのも良いですが、
+そうでない方は外部のgemを利用することをおすすめします。
+
+動的に要素を増減可能なフォームを実現するためのgemはいくつかありますが、
+今回はcocoon(https://github.com/nathanvda/cocoon) というgemを利用することとします。
+
+cocoonは以下規則に従うことで、指定した領域を動的に追加、削除することが可能となります。
+
+**1. 動的に要素を増減したいfields_forの領域を _xxx_fields.html.erb に切り出す**
+
+.. code-block:: ruby
+
+  # app/views/orders/_form.html
+  <tbody id='detail-association-insertion-point'>
+  <div class="form-group">
+
+  <%= f.fields_for :order_details do |od| %>
+    <%= render 'order_detail_fields', f: od %>
+  <% end %>
+
+  </div>
+  </tbody>
+
+xxx にはfields_for で指定した変数名が入ります。
+今回のサンプルですと、fields_for には ``order_details`` を指定しているので、
+``_order_detail_fields.html.erb`` というpartialファイルにビューを切り出します。
+
+**2. _fields.html.erb内の要素を増減したい領域に、class='nested-fields'をつける**
+
+.. code-block:: ruby
+
+  # app/views/products/_order_detail_fields.html.erb
+
+  <tr class="nested-fields">
+    <%= f.hidden_field :id %>
+    <td>
+    <%= f.collection_select :product_id, f.object.selectable_products, :id, :name, {}, class: 'form-control' %>
+    </td>
+    <td>
+    <%= f.text_field :unit_price, class: 'form-control unit-price' %>
+    </td>
+    <td>
+    <%= f.text_field :quantity, class: 'form-control quantity' %>
+    </td>
+    <td>
+    <%= f.text_field :price, class: 'form-control subtotal', disabled: true %>
+    </td>
+    <td>
+    <%= link_to_remove_association '削除', f, class: 'btn btn-default' %>
+    </td>
+  </tr>
+
+cocoonは、nested-fields内に存在する要素をコピーすることにより、対象領域を動的に追加しています。
+
+**3. nested-fieldsの領域を追加するには、link_to_add_associationヘルパーを利用する**
+
+.. code-block:: ruby
+
+  # app/views/proudcts/_form.html.erb
+
+  <%= link_to_add_association '明細を追加', f, :order_details,
+    class: 'btn btn-default',
+    data: {
+      association_insertion_node: '#detail-association-insertion-point',
+      association_insertion_method: 'append' }
+   %>
+
+``link_to_add_association`` を利用することで、fields_for内の要素を
+追加するためのリンクが生成可能です。
+data-association-insertion-nodeや、data-association-insertion-method を指定することで、
+コピーした領域をどこに挿入するかを細かく設定することが可能です。
+
+**4. nested-fieldsの領域を削除するには、link_to_remove_associationヘルパーを利用する**
+
+.. code-block:: ruby
+
+  <%= link_to_remove_association '削除', f, class: 'btn btn-default' %>
+
+
+上記のステップを踏むだけで、要素を動的に増減可能なフォームを手軽に実装することができます。
+
+
+サンプルアプリケーション
+============================================================================
+
+今回実装したサンプルアプリケーションは、以下ページにて取得可能です。
+
+- https://github.com/nishio-dens/rails-application-build-guide-sample/tree/master/form/dynamic_nested_forms
