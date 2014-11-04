@@ -144,9 +144,188 @@ ProductCategoryモデルは以下の通りです。
 
     - 商品に紐づく紐づくカテゴリは編集画面で削除できること
 
-.. note::
-
-  この章は :ref:`form_one_to_many_relation` を読んでいることを前提として話を進めます。
 
 
-11/04 今日はここまで
+多対多の関連を持つ商品登録画面の実装方法
+============================================================================
+
+多対多の関連を持つオブジェクトを編集できるフォームの実装も、
+:ref:`form_one_to_many_relation` とほとんど変わりません。
+
+以下、商品と商品カテゴリのフォームオブジェクトを作成します。
+
+.. code-block:: ruby
+
+  # app/models/form/product.rb
+  class Form::Product < Product
+    REGISTRABLE_ATTRIBUTES = %i(code name name_kana price purchase_cost availability)
+
+    has_many :product_categories, class_name: 'Form::ProductCategory'
+  end
+
+.. code-block:: ruby
+
+  # app/models/form/product_category.rb
+  class Form::ProductCategory < ProductCategory
+    REGISTRABLE_ATTRIBUTES = %i(id product_id category_id _destroy)
+
+    def selectable_categories
+      Category.all
+    end
+  end
+
+コントローラの実装は以下の通りです。
+
+.. code-block:: ruby
+
+  # app/controllers/products_controller.rb
+  class ProductsController < ApplicationController
+    def new
+      @product = Form::Product.new
+    end
+
+    def edit
+      @product = Form::Product.find(params[:id])
+    end
+
+    def create
+      @product = Form::Product.new(product_params)
+      if @product.save
+        redirect_to products_path, notice: "商品 #{@product.name} を登録しました。"
+      else
+        render :new
+      end
+    end
+
+    def update
+      @product = Form::Product.find(params[:id])
+      if @product.update_attributes(product_params)
+        redirect_to products_path, notice: "商品 #{@product.name} を更新しました。"
+      else
+        render :edit
+      end
+    end
+
+    private
+
+    def product_params
+      params
+        .require(:form_product)
+        .permit(
+          Form::Product::REGISTRABLE_ATTRIBUTES +
+          [product_categories_attributes: Form::ProductCategory::REGISTRABLE_ATTRIBUTES]
+        )
+    end
+  end
+
+
+Viewの実装は以下の通りです。
+
+.. code-block:: erb
+
+  # app/views/products/new.html.erb (一部抜粋)
+  # edit.html.erb もpath以外は同じ
+
+  <%= form_for(@product, url: path, method: method) do |f| %>
+    <div class="col-sm-6">
+    <div class="form-group">
+      <label class="control-label" for="">商品コード</label>
+      <%= f.text_field :code, class: 'form-control' %>
+    </div>
+    <div class="form-group">
+      <label class="control-label" for="">商品名</label>
+      <%= f.text_field :name, class: 'form-control' %>
+    </div>
+    <div class="form-group">
+      <label class="control-label" for="">商品名カナ</label>
+      <%= f.text_field :name_kana, class: 'form-control' %>
+    </div>
+    </div>
+
+    <div class="col-sm-6">
+    <div class="form-group">
+      <label class="control-label" for="">商品価格</label>
+      <%= f.text_field :price, class: 'form-control' %>
+    </div>
+    <div class="form-group">
+      <label class="control-label" for="">仕入原価</label>
+      <%= f.text_field :purchase_cost, class: 'form-control' %>
+    </div>
+    <div class="form-group">
+      <div class="col-sm-12">
+      <div class="checkbox">
+        <label>
+          <%= f.check_box :availability, {}, 'true', 'false' %>
+          販売可否
+        </label>
+      </div>
+      </div>
+    </div>
+    </div>
+
+    <div class="col-sm-12">
+      <hr>
+      <b>商品カテゴリ</b>
+      <div class="text-right">
+        <%= link_to_add_association 'カテゴリを追加', f, :product_categories,
+          class: 'btn btn-default',
+          data: {
+            association_insertion_node: '#detail-association-insertion-point',
+            association_insertion_method: 'append' }
+         %>
+      </div>
+      <table class="table table-list">
+      <thead>
+        <tr>
+          <th></th>
+          <th></th>
+        </tr>
+      </thead>
+
+      <tbody id='detail-association-insertion-point'>
+      <div class="form-group">
+      <%= f.fields_for :product_categories do |od| %>
+        <%= render 'product_category_fields', f: od %>
+      <% end %>
+      </div>
+      </tbody>
+      </table>
+    </div>
+
+    <div class="col-sm-12">
+    <div class="text-center">
+    <%= f.submit '登録', class: 'btn btn-primary' %>
+    </div>
+    </div>
+  <% end %>
+
+
+.. code-block:: ruby
+
+  # app/views/products/_product_category_fields.html.erb 
+  <tr class="nested-fields">
+    <%= f.hidden_field :id %>
+    <td>
+    <%= f.collection_select :category_id, f.object.selectable_categories, :id, :name, {}, class: 'form-control' %>
+    </td>
+    <td>
+    <%= link_to_remove_association '削除', f, class: 'btn btn-default' %>
+    </td>
+  </tr>
+
+カテゴリを追加ボタンで、商品に紐づくカテゴリを動的に追加可能です。
+動的にフォームの要素を追加する方法については、 :ref:`form_one_to_many_relation` を
+参照してください。
+
+Viewのfields_for に指定する要素は categories ではなく product_categories です。
+商品とカテゴリは多対多の関連を持っていますが、
+実際に編集するのは1対多の関連にある商品と商品カテゴリのみです。
+よって、:ref:`form_one_to_many_relation` の実装と変わりはありません。
+
+
+サンプルアプリケーション
+============================================================================
+
+今回実装したサンプルアプリケーションは、以下ページにて取得可能です。
+
+- https://github.com/Rails-Application-Build-Guides/rails-application-build-guide-sample/tree/master/form/many_to_many_forms
