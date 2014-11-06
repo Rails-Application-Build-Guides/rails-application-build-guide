@@ -34,11 +34,11 @@ DB設計は以下の通りです。
 多対多の関連をチェックボックスで登録する方法
 ============================================================================
 
-今回は以下3つの項目に分けて解説を行います。
+今回は以下2つの項目に分けて解説を行います。
 
 - 関連をidsメソッドを利用して更新する方法
 - 多対多の関連をチェックボックスで更新するViewの実装方法
-- idsメソッドを予約アップデートできるように修正する方法
+- 多対多の関連をids=で更新するControllerの実装方法
 
 
 関連をidsメソッドを利用して更新する方法
@@ -95,9 +95,76 @@ Productモデルのcategory_idsにカテゴリのid配列を渡すことで、�
 多対多の関連をチェックボックスで更新するViewの実装方法
 ----------------------------------------------------------------------------
 
+商品のカテゴリを更新する、Viewの実装は以下のようになります。
 
-idsメソッドを予約アップデートできるように修正する方法
+.. code-block:: ruby
+
+  # app/views/product/new.html.erb (一部重要な部分のみ抜粋)
+  # edit.html.erb もpost先以外は同じ
+
+  <%= form_for(@product, url: path, method: method) do |f| %>
+
+    # 省略
+
+    <div class="col-sm-12">
+      <% f.object.selectable_categories.each do |category| %>
+        <%= f.label :category_ids, value: category.id, class: 'checkbox' do %>
+          <%= f.check_box :category_ids, { multiple: true }, category.id, nil %>
+          <%= category.name %>
+        <% end %>
+      <% end %>
+    </div>
+
+    <%= f.submit '登録', class: 'btn btn-primary' %>
+  <% end %>
+
+:ref:`many_to_many_object_registrable_form` では、fields_for に指定するオブジェクトは、
+商品(Product)モデルと1対多の関連にある商品カテゴリ(ProductCategory)モデルでした。
+
+チェックボックス形式で商品のカテゴリを更新する際は、商品(Product)モデルと
+多対多の関連にあるカテゴリ(Category)のidsを、check_boxとして指定します。
+
+このようにViewを実装すると、Controller側には以下のようにパラメータが渡されます。
+
+.. code-block:: ruby
+
+  # paramsの例
+  "form_product"=>{"code"=>"", "name"=>"", "name_kana"=>"", "price"=>"",
+                   "purchase_cost"=>"", "availability"=>"false",
+                   "category_ids"=>["2", "3"]},
+   "commit"=>"登録",
+   "action"=>"create",
+   "controller"=>"products"}
+
+多対多の関連をids=で更新するControllerの実装方法
 ----------------------------------------------------------------------------
+
+商品に紐づくカテゴリをcategory_ids=で更新する方法と、
+Viewからcategory_idsを飛ばす方法については検討しました。
+
+controller側で商品カテゴリを更新するコードはい、以下のようになります。
+
+.. code-block:: ruby
+
+  # app/controller/products.rb
+  def create
+    @product = Form::Product.new(product_params)
+    if @product.save
+      redirect_to products_path, notice: "商品 #{@product.name} を登録しました。"
+    else
+      render :new
+    end
+  end
+
+  def update
+    @product = Form::Product.find(params[:id])
+    if @product.update_attributes(product_params)
+      redirect_to products_path, notice: "商品 #{@product.name} を更新しました。"
+    else
+      render :edit
+    end
+  end
+
 
 サンプルアプリケーション
 ============================================================================
