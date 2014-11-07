@@ -142,7 +142,7 @@ Productモデルのcategory_idsにカテゴリのid配列を渡すことで、�
 商品に紐づくカテゴリをcategory_ids=で更新する方法と、
 Viewからcategory_idsを飛ばす方法については検討しました。
 
-controller側で商品カテゴリを更新するコードはい、以下のようになります。
+controller側で商品カテゴリを更新するコードは、以下のようになります。
 
 .. code-block:: ruby
 
