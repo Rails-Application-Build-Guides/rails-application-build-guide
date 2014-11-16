@@ -11,3 +11,4 @@
   many_to_many_form
   many_to_many_checkbox_form
   datetime_register_form
+  double_submit_protection
