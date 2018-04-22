@@ -11,7 +11,7 @@ img {
   vertical-align: middle;
   border-style: none;
   display: block;
-  height: auto;
+  height: auto !important;
   max-width: 100%;
 }
 
