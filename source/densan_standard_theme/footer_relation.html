@@ -1,0 +1,19 @@
+<div class="row">
+  <div class="col-md-6">
+    {%- if prev %}
+    <a href="{{ prev.link|e }}"
+      title="{{ _('previous chapter') }}" class="btn btn-primary full-width footer-relation-btn">
+      前の記事へ
+    </a>
+    {%- endif %}
+  </div>
+
+  <div class="col-md-6 text-right">
+    {%- if next %}
+    <a href="{{ next.link|e }}"
+      title="{{ _('next chapter') }}" class="btn btn-primary full-width footer-relation-btn">
+      次の記事へ
+    </a>
+    {%- endif %}
+  </div>
+</div>

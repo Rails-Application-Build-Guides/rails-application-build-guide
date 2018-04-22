@@ -43,7 +43,7 @@
 {%- endmacro %}
 
 {%- macro header() %}
-    {%- include "header.html" %}
+  {%- include "header.html" %}
 {%- endmacro %}
 
 {%- macro headertitle() %}
@@ -52,6 +52,10 @@
   {%- else %}
   <title>{{ title }} | Railsアプリケーション構築ガイド</title>
   {%- endif %}
+{%- endmacro %}
+
+{%- macro footer_relations() %}
+  {%- include "footer_relation.html" %}
 {%- endmacro %}
 
 {%- block doctype %}
@@ -103,18 +107,7 @@
 
           <hr />
 
-          <div class="row">
-            <div class="col-md-6">
-              <% if @article.prev_article.present? %>
-              <%= link_to "前の記事へ", article_path(@article.prev_article), class: "btn btn-primary full-width mb-10" %>
-              <% end %>
-            </div>
-            <div class="col-md-6 text-right">
-              <% if @article.next_article.present? %>
-              <%= link_to "次の記事へ", article_path(@article.next_article), class: "btn btn-primary full-width mb-10" %>
-              <% end %>
-            </div>
-          </div>
+          {{ footer_relations() }}
         </div>
         <div class="col-md-3 hidden-sm mt-20">
           {{ sidebar() }}
