@@ -57,6 +57,8 @@ all:
 	$(MAKE) -C $(BUILDDIR)/latex all-pdf
 	@echo "pdflatex finished; the PDF files are in $(BUILDDIR)/latex."
 	@echo
+	@echo "Copy pdf to dist html"
+	cp $(BUILDDIR)/latex/Rails.pdf $(BUILDDIR)/html/rails_application_build_guide.pdf
 	@echo "Build finished. "
 	
 html:
