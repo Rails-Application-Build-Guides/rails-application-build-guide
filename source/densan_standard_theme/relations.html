@@ -1,0 +1,19 @@
+{%- if parents %}
+<h3>親のトピックへ</h3>
+{%- for parent in parents %}
+  <p class="topless"><a href="{{ parent.link|e }}"
+            {% if loop.last %}{{ accesskey("U") }}{% endif %}>{{ parent.title }}</a></p>
+{%- endfor %}
+{%- endif %}
+
+{%- if next %}
+  <h3>{{ _('Next topic') }}</h3>
+  <p class="topless"><a href="{{ next.link|e }}"
+                        title="{{ _('next chapter') }}">{{ next.title }}</a></p>
+{%- endif %}
+
+{%- if prev %}
+  <h3>{{ _('Previous topic') }}</h3>
+  <p class="topless"><a href="{{ prev.link|e }}"
+                        title="{{ _('previous chapter') }}">{{ prev.title }}</a></p>
+{%- endif %}<Paste>
