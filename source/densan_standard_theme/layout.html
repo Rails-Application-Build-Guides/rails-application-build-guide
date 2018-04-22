@@ -42,6 +42,18 @@
     {%- endfor %}
 {%- endmacro %}
 
+{%- macro header() %}
+    {%- include "header.html" %}
+{%- endmacro %}
+
+{%- macro headertitle() %}
+  {%- if title == "Railsアプリケーション構築ガイド" %}
+  <title>Railsアプリケーション構築ガイド</title>
+  {%- else %}
+  <title>{{ title }} | Railsアプリケーション構築ガイド</title>
+  {%- endif %}
+{%- endmacro %}
+
 {%- block doctype %}
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3c.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -52,7 +64,7 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {{ metatags }}
-    <title>{{ title }} | Railsアプリケーション構築ガイド</title>
+    {{ headertitle() }}
     <link href="{{ pathto('_static/bootstrap.min.css', 1) }}" rel="stylesheet" type="text/css" media="screen" />
     <link href="{{ pathto('_static/common.css', 1) }}" rel="stylesheet" type="text/css" media="screen" />
     {%- if not embedded %}
@@ -80,57 +92,43 @@
 
   </head>
   <body>
-    <div id="wrapper">
-      <div id="header-wrapper">
-        <div id="header">
+		{{ header() }}
 
-          <div id="logo">
-            <h1><a href="{{ pathto(master_doc) }}">Densanlabs</a></h1>
-            <p>densan-labs.net</p>
+    <div class="container article-container">
+      <div class="row">
+        <div class="col-md-9">
+          {%- block body %}
+          {%- endblock body %}
+
+          <hr />
+
+          <div class="row">
+            <div class="col-md-6">
+              <% if @article.prev_article.present? %>
+              <%= link_to "前の記事へ", article_path(@article.prev_article), class: "btn btn-primary full-width mb-10" %>
+              <% end %>
+            </div>
+            <div class="col-md-6 text-right">
+              <% if @article.next_article.present? %>
+              <%= link_to "次の記事へ", article_path(@article.next_article), class: "btn btn-primary full-width mb-10" %>
+              <% end %>
+            </div>
           </div>
-          <div id="menu">
-            <ul>
-              <!-- <li class="current_page_item"><a href="#">Home</a></li> -->
-              <li class="current_page_item"><a href="{{ pathto(master_doc) }}">Home</a></li>
-              <li><a href="https://densan-labs.net/tech.html">Technical Documents</a></li>
-              <li><a href="https://densan-labs.net/software.html">Software</a></li>
-              <li><a href="https://dev.densan-labs.net/">Blog</a></li>
-              <li><a href="https://densan-labs.net/author/">About</a></li>
-            </ul>
+        </div>
+        <div class="col-md-3 hidden-sm mt-20">
+          {{ sidebar() }}
+        </div>
+      </div>
+    </div>
 
+    <footer>
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-12 mx-auto">
+            <p class="copyright page__copyright">Copyright &copy; 2014 <a href="http://densan-labs.net">densan-labs.net</a>. All rights reserved.</p>
           </div>
         </div>
       </div>
-      <!-- end #header -->
-      <div id="page">
-        <div id="page-bgtop">
-          <div id="page-bgbtm">
-            <div id="content">
-              <div class="post">
-                {%- block body %} {%- endblock body %}
-              </div>
-              <div style="clear: both;">&nbsp;</div>
-              <!-- social button -->
-
-              <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
-              <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
-
-              <!-- end social button -->
-              </div>
-
-            <!-- end #content -->
-            {{ sidebar() }}
-            <!-- end #sidebar -->
-            <div style="clear: both;">&nbsp;</div>
-          </div>
-        </div>
-      </div>
-      <!-- end #page -->
-
-    </div>
-    <div id="footer">
-      <p>Copyright (c) 2014- densan-labs.net. All rights reserved.</p>
-    </div>
-    <!-- end #footer -->
+    </footer>
   </body>
 </html>
