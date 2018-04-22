@@ -1,6 +1,22 @@
+/* ------------------- */
+/* sphinx common */
+/* ------------------- */
+
 /* remove sphinx mark */
 .headerlink {
   display: none;
+}
+
+img {
+  vertical-align: middle;
+  border-style: none;
+  display: block;
+  height: auto;
+  max-width: 100%;
+}
+
+.section {
+  word-wrap: break-word;
 }
 
 /* ------------------- */
@@ -34,6 +50,10 @@
     list-style: none;
     padding-bottom: 5px;
   }
+}
+
+.article-container {
+  margin-top: 20px;
 }
 
 /* ------------------- */
