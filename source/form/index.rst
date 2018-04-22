@@ -3,7 +3,6 @@
 ============================================================================
 
 .. toctree::
-  :numbered:
 
   search_form
   bulk_registration_form

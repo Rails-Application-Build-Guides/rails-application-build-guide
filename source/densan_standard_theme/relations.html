@@ -7,13 +7,13 @@
 {%- endif %}
 
 {%- if next %}
-  <h3>{{ _('Next topic') }}</h3>
+  <h3>{{ _('次のページ') }}</h3>
   <p class="topless"><a href="{{ next.link|e }}"
                         title="{{ _('next chapter') }}">{{ next.title }}</a></p>
 {%- endif %}
 
 {%- if prev %}
-  <h3>{{ _('Previous topic') }}</h3>
+  <h3>{{ _('前のページ') }}</h3>
   <p class="topless"><a href="{{ prev.link|e }}"
                         title="{{ _('previous chapter') }}">{{ prev.title }}</a></p>
 {%- endif %}

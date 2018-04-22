@@ -3,7 +3,6 @@
 ============================================================================
 
 .. toctree::
-  :numbered:
 
   csv_export_basic
   search_csv_export

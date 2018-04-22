@@ -7,7 +7,7 @@
   display: none;
 }
 
-img {
+.article-container img {
   vertical-align: middle;
   border-style: none;
   display: block;
@@ -15,50 +15,111 @@ img {
   max-width: 100%;
 }
 
-.section {
+.article-container .section {
   word-wrap: break-word;
+  margin-bottom: 24px;
 }
+
+.article-container pre {
+  padding: 10px;
+}
+
+.article-container h1 {
+  font-size: 200%;
+  font-weight: bold;
+  margin-bottom: 24px;
+}
+
+.article-container h2 {
+  font-size: 160%;
+  font-weight: bold;
+  margin-bottom: 24px;
+}
+
+.article-container h3 {
+  font-size: 140%;
+  font-weight: bold;
+  margin-bottom: 24px;
+}
+
+.admonition {
+  background-color: #F39C12 !important;
+}
+
+.admonition p {
+  -webkit-box-flex: 1;
+  flex: 1 1 auto;
+  padding: 12px 24px 12px 24px;
+  color: #fafafa;
+}
+
+.admonition-title {
+  padding: 0.75em 1.25rem;
+  margin-bottom: 0;
+  background-color: rgba(0, 0, 0, 0.03);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+  color: #fafafa;
+  font-weight: bold;
+}
+
+
 
 /* ------------------- */
 /* sidebar */
 /* ------------------- */
+
+.article-sidebar h3 {
+  font-size: 120%;
+  color: #aaa;
+  border-bottom: 1px solid #ddd;
+  padding: 0 8px 8px;
+  width: 100%;
+}
+
+.article-sidebar ul {
+  padding-left: 12px;
+}
+
+.article-sidebar li {
+  list-style: none;
+  padding-bottom: 6px;
+}
+
+.article-sidebar .topless {
+  margin-left: 12px;
+}
 
 
 /* ------------------- */
 /* pages */
 /* ------------------- */
 
+.toctree-wrapper ul {
+  padding-left: 24px;
+}
+
+.toctree-wrapper li {
+  list-style: none;
+  padding-bottom: 3px;
+}
+
+
 
 .full-width {
   width: 100%;
 }
 
-.article-sidebar {
-  h2 {
-    font-size: 120%;
-    color: #aaa;
-    border-bottom: 1px solid #ddd;
-    padding: 0 8px 8px;
-    width: 100%;
-  }
-
-  ul {
-    padding-left: 10px;
-  }
-
-  li {
-    list-style: none;
-    padding-bottom: 5px;
-  }
-}
-
 .article-container {
-  margin-top: 20px;
+  margin-top: 24px;
 }
 
 /* ------------------- */
 /* footer */
 /* ------------------- */
+
+.footer-relation {
+  margin-bottom: 24px;
+}
 
 .footer-relation-btn {
   margin-bottom: 10px;
